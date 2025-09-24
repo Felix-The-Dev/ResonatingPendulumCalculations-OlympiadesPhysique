@@ -35,10 +35,8 @@ class AppliPendule(tk.Tk):
         
         
         # Creation des boutons.
-        btn1 = tk.Button(self, text="Quitter", command=self.quit)
-        btn2 = tk.Button(self, text="Demarrer", command=self.start)
-        btn3 = tk.Button(self, text="Arreter", command=self.stop)
-        btn4 = tk.Button(self, text="Effacer", command=self.canva_reset)
+        btnLaunch = tk.Button(self, text="Demarrer", command=self.start)
+        btnStop = tk.Button(self, text="Arreter", command=self.stop)
         
         
         # Creation de la règlette
@@ -57,10 +55,8 @@ class AppliPendule(tk.Tk):
         
         # Placement des widgets dans la fenetre Tk.
         self.canv.pack(side=tk.LEFT)
-        btn1.pack(side=tk.BOTTOM)  # boutton quitter
-        btn2.pack()
-        btn3.pack()
-        btn4.pack()
+        btnLaunch.pack()  # boutton quitter
+        btnStop.pack()
         display_theta.pack()
         signature.pack(side=tk.BOTTOM)
         # Puis la règle et sa description.
@@ -72,8 +68,8 @@ class AppliPendule(tk.Tk):
         
     def canva_reset(self):
         if hasattr(self, "canv"):
+            # On vide le canva pour éviter le lag
             self.canv.delete('all')
-            print("canva effacé")
         else:
             # Creation du canevas dans la fenetre.
             self.canv = tk.Canvas(self, bg='gray', height=400, width=400)
