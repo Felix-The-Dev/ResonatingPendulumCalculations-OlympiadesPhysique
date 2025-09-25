@@ -13,8 +13,8 @@ Ne pas oublier l'opérateur d'unpacking du tuple : *
 import numpy as np
 import matplotlib.pyplot as plt
 
-def calc_pendule(l=2e-2, thetadeb=170, alpha=0, f=51, a=2e-3, g=9.81, tau=1, 
-                 N=100000, tfin=10, output=["t", "theta"]):
+def calc_pendule(l=2e-2, thetadeb=160, alpha=0, f=0, a=0, g=9.81, tau=1, 
+                 k=10000, tfin=10, output=["t", "theta"]):
     """
     Calcule l'évolution de l'angle d'un pendule par rapport à '
     
@@ -25,15 +25,15 @@ def calc_pendule(l=2e-2, thetadeb=170, alpha=0, f=51, a=2e-3, g=9.81, tau=1,
     
     @arg alpha : angle que fait la direction d'excitation avec la verticale 
                 (en radiants: 0 pour vertical, np.pi/2 pour l'horizontale)
-    @arg f : fréquence de l'excitateur en Hz
-    @arg a : amplitude des excitation en m
+    @arg f : (51) fréquence de l'excitateur en Hz
+    @arg a : (2e-3) amplitude des excitation en m
     
     
     @arg g : attraction terrestre en m/s^2
     
     @arg tau : temps de relaxation en s (représente les forces de frottement)
     
-    @arg N : nombre d'occurences de simulation
+    @arg k : nombre d'occurences de simulation par seconde
     @arg tfin : date de fin de simulation en seconde
                  
     @output: au choix parmi :
@@ -49,12 +49,13 @@ def calc_pendule(l=2e-2, thetadeb=170, alpha=0, f=51, a=2e-3, g=9.81, tau=1,
     # ----- Temps de simulation ----- 
     tdeb=0
     # tfin = date de fin de simulation en seconde en paramètre
-    # N = nombre d'occurences de simulation en paramètre
+    # k = nombre d'occurences de simulation par seconde
+    N = k * tfin # nombre total d'occurences de simulation
     dt=(tfin-tdeb)/N
     
     # --- Calcul de la fréquence propre de ce pendule (avec g et l) ---
     f0=1/(2*np.pi)*(g/l)**0.5 
-    print('fréquence propre:',f0,'Hz')
+    # print('fréquence propre:',f0,'Hz')
 
     
     
@@ -66,7 +67,7 @@ def calc_pendule(l=2e-2, thetadeb=170, alpha=0, f=51, a=2e-3, g=9.81, tau=1,
     fmin = 0
     if a != 0:
         fmin=(2*g*l)**0.5/(2*np.pi*a)
-        print('fréquence minimale pour le pendule kapiza:',fmin,'Hz')
+        # print('fréquence minimale pour le pendule kapiza:',fmin,'Hz')
     
     
     # --- Initialisation des tableaux ---
@@ -94,11 +95,11 @@ def calc_pendule(l=2e-2, thetadeb=170, alpha=0, f=51, a=2e-3, g=9.81, tau=1,
         "thetap": thetap,
         "f": f,
         "fmin": fmin,
-        "dt": dt
+        "N": N
         }    
     out = {}
     for x in output:
-        if x in ["t", "theta", "thetap", "f", "fmin", "dt"] :
+        if x in ["t", "theta", "thetap", "f", "fmin", "N"] :
             out[x] = all_outputs[x]
         else:
             raise ValueError(f"Unknown output name : {output}")
