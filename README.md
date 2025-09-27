@@ -42,7 +42,6 @@ Le fichier "modélisation d'un pendule avec excitation.py" affiche une fenêtre 
 Des paramètre prédéfinis peuvent même être sélectionnés pour mettre en évidence les phénomènes que nous désirons étudier 🙂
 De légers lags peuvent apparaître, mais ils sont normalement courts.
 
-🕰️
 
 ## Galerie
 ![Graphique "theta en fonction de t" d'un pendule de longueur 5cm, à un angle de 45 degrès par rapport au bas, soumis à une excitation verticale de fréquence 5Hz et d'amplitude 2cm sur une durée de simulation de 10s](images/graphic%20example.png)
@@ -52,3 +51,5 @@ De légers lags peuvent apparaître, mais ils sont normalement courts.
 ![Utilisation de paramètres pré-enregistrés](images/pre-loaded%20parameters.png)
 
 ![Autres propriétés et obtention de la fréquence et de la période propres](images/other%20properties.png)
+
+## 🕰️
