@@ -13,63 +13,80 @@ class AppliPendule(tk.Tk):
     """Classe principale de l'application (contient la fenetre Tk).
     """
 
-    def __init__(self, l=2e-2, thetadeb=70, alpha=0, f=0, a=0, g=9.81, 
+    def __init__(self, l=6e-2, thetadeb=70, alpha=0, f=0, a=0, g=9.81,
                  tau=1, k=20, tfin=10):
-        
+
         # Appel du constructeur de la classe génitrice.
-        # L'instance de la fenetre principale se retrouve dans le self.donc 
+        # L'instance de la fenetre principale se retrouve dans le self.donc
         # on pourra le self dans la suite
         tk.Tk.__init__(self)
-        
-        
+
+
         # Etat du mouvement
         self.is_moving = False
-        
-                
+
+
         # ----- Grandeurs physiques initiales -------
         self.t = 0  # temps (s)
-        
-        
+
+
         self.l = l
         self.thetadeb = thetadeb
         self.alpha = alpha
         self.a = a
         self.g = g    # accélération gravitationnelle (m/s^2)
         self.tau = tau
-        
-        
+        self.f0 = 0
+
+
         # ----- Temps de simulation -----
         tdeb=0
         self.tfin = tfin #date de fin de simulation en seconde en paramètre
         self.k = k # nombre d'occurences de simulation par seconde en paramètre
         self.N = k*tfin # nombre d'occurences de simulation total
         self.dt = (self.tfin-tdeb)/self.N  # intervalle de temps entre chaque simulation (s)
-        
-        
+
+
         self.simulation_being_played = {}
-        self.n_playing = 1 # parce que on lui enlève un par la suite      
-        
+        self.n_playing = 1 # parce que on lui enlève un par la suite
+
         self.theta = {}
         self.thetap = {}
         self.now_theta = thetadeb/180*np.pi  # angle du pendule
         self.now_thetap = 0.0     # vitesse angulaire ,le pend.ule est au repos au début
-        
-        self.L = 1  # longueur de la tige  (m)
+
+        self.L = l*100/5  # longueur de la tige  (mesure de tkinter)
         self.x = np.sin(self.now_theta) * self.L
         self.y = -np.cos(self.now_theta) * self.L
         # Conversion x, y en coord dans le canevas
         self.x_c, self.y_c = self.map_realcoor2canvas(self.x, self.y)
-        
-        
+
+
+
+        self.change_pendulum_window = 0
+
+
         self.canva_reset()
-        
-        
-        
+
+
+
         # Creation des boutons.
         self.btnStart = tk.Button(self, text="Démarrer", command=self.start)
         self.btnStop = tk.Button(self, text="Arreter", command=self.stop)
-        
-        
+
+
+        # Creationtion d'un Label pour voir les caracteristiques du pendule en temps réel.
+        # On utilise une Stringvar (permet de mettre à jour l'affichage).
+        self.stringvar_pos_display = tk.StringVar()
+        display_theta = tk.Label(self, textvariable=self.stringvar_pos_display,
+                                 fg="blue", font=("Courier New", 12))
+
+
+        self.btnChangePendulum = tk.Button(self, text="Modifier les propriétés du pendule", command=self.open_change_pendulum_window)
+
+
+
+
         # Création du choix 'direction d'exitation'
         self.alexcit_frame = tk.Frame(self)
         self.alexcit_label = tk.Label(self, text = "Direction d'exitation α =" )
@@ -80,21 +97,21 @@ class AppliPendule(tk.Tk):
             self.alexcit_rad1.select()
         elif (alpha>np.pi/2-0.5 and alpha<np.pi/2+0.5):
             self.alexcit_rad2.select()
-        
+
         # Création de l'entrée 'fréquence d'exitation (f)'
         self.fexcit_frame = tk.Frame(self)
         self.f_var = tk.StringVar()
         self.fexcit_label = tk.Label(self.fexcit_frame, text = "Fréquence d'exitation f =" )
         self.fexcit_entry = tk.Entry(self.fexcit_frame, textvariable=self.f_var, width=10)
         self.f_var.set(str(round(f, 5)))
-        
+
         # Création de l'entrée 'amplitude d'exitation (a)'
         self.aexcit_frame = tk.Frame(self)
         self.a_var = tk.StringVar()
         self.aexcit_label = tk.Label(self.aexcit_frame, text = "Amplitude d'exitation a =" )
         self.aexcit_entry = tk.Entry(self.aexcit_frame, textvariable=self.a_var, width=10)
         self.a_var.set(str(round(a, 5)))
-        
+
         # Creation de la règlette
         self.theta_scale = tk.Scale(self, from_=180, to=-180,
                                     resolution=0.5,
@@ -102,22 +119,20 @@ class AppliPendule(tk.Tk):
         self.theta_scale.set(thetadeb)
         scale_description = tk.Label(self, text="valeur initiale de theta",
                                      fg="blue")
-        
-        
-        # Creation du bouton "ouvrir les graphiques"
-        open_graphic=tk.Button(self, text="Générer le graphique", bg="#b3c2d0", command=self.open_graphics)
-        
-        # Creationtion d'un Label pour voir les caracteristiques de la Balle.
-        # On utilise une Stringvar (permet de mettre à jour l'affichage).
-        self.stringvar_pos_display = tk.StringVar()
-        display_theta = tk.Label(self, textvariable=self.stringvar_pos_display,
-                                 fg="blue", font=("Courier New", 12))
-        
+
+
+        # Creation du bouton "ouvrir les graphiques" et de son bouton associé pour voir seulement ce que simule le pendule
+        open_graphic_frame = tk.Frame(self)
+        open_graphic=tk.Button(open_graphic_frame, text="Générer le graphique", bg="#b3c2d0", command=self.open_graphics)
+        open_simulation_graphic=tk.Button(open_graphic_frame, text="#", bg="#b3c2d0", command=self.open_simulation_graphics)
+
+
         # --- Placement des widgets dans la fenetre Tk. ----
         self.canv.pack(side=tk.LEFT)
         self.btnStart.pack()  # boutton quitter
         self.btnStop.pack()
         display_theta.pack()
+        self.btnChangePendulum.pack()
         self.alexcit_label.pack()
         self.alexcit_rad1.pack( side = 'left' )
         self.alexcit_rad2.pack(side = 'right')
@@ -128,16 +143,21 @@ class AppliPendule(tk.Tk):
         self.aexcit_label.pack( side = 'left' )
         self.aexcit_entry.pack(side = 'right')
         self.aexcit_frame.pack()
-        open_graphic.pack(side=tk.BOTTOM)
-        
+
+        open_graphic_frame.pack(side=tk.BOTTOM)
+        open_graphic.pack(side=tk.LEFT)
+        open_simulation_graphic.pack(side=tk.RIGHT)
+
         # Puis la règle et sa description.
         scale_description.pack(side=tk.LEFT)
         self.theta_scale.pack(side=tk.RIGHT)
-        
+
         # --- mise à jour ---
         self.stringvar_pos_display.set(self.get_pos_displ())
         
-        
+        self.after(50, self.start)
+
+
     def canva_reset(self):
         if hasattr(self, "canv"):
             # On vide le canva pour éviter le lag
@@ -145,7 +165,7 @@ class AppliPendule(tk.Tk):
         else:
             # Creation du canevas dans la fenetre.
             self.canv = tk.Canvas(self, bg='gray', height=400, width=400)
-            
+
         # creation du pivot.
         self.canv.create_oval(190, 190, 210, 210, width=1, fill="blue")
         # creation de la balle.
@@ -161,8 +181,8 @@ class AppliPendule(tk.Tk):
         # Creation d'une ligne
         self.canv.create_line(0, 200, 400, 200, dash=(3, 3))
         self.canv.create_line(200, 0, 200, 400, dash=(3, 3))
-        
-        
+
+
 
     def get_pos_displ(self):
         """Retourne une chaine avec la position et la vitesse (angulaire) de la balle.
@@ -204,7 +224,7 @@ class AppliPendule(tk.Tk):
     def move(self):
         """deplace la balle ,mets à jour les coordonnées et s'auto-rappelle après 20 ms.
         """
-        
+
         if self.is_moving:
             # Calcul du nouveau now_theta avec la methode Euler semi-implicite..
             # if self.n_playing-1 < len(self.theta):
@@ -214,9 +234,9 @@ class AppliPendule(tk.Tk):
             # else:
             #     self.now_theta = self.theta[len(self.theta)-1]
             #     self.now_thetap = self.thetap[len(self.thetap)-1]
-            
-            
-            
+
+
+
             # Conversion theta -> x & y.
             self.x = np.sin(self.now_theta) * self.L
             self.y = -np.cos(self.now_theta) * self.L
@@ -229,14 +249,14 @@ class AppliPendule(tk.Tk):
                              self.x_c + (self.size / 2),
                              self.y_c + (self.size / 2))
             self.canv.coords(self.tige, 200, 200, self.x_c, self.y_c)
-            
+
             # presence de la trace au passage de la balle
             self.canv.create_line(self.x_c, self.y_c, self.x_c + 1,
                                   self.y_c + 1, width=4, fill=self.color_trace)
             # On met à jour la zone de texte.
             self.stringvar_pos_display.set(self.get_pos_displ())
             self.t += self.dt
-            
+
             # On refait appel  à la  methode.move().
             if self.is_moving and self.n_playing < len(self.theta)-1:
                 self.after(int(self.dt*1000), self.move)  # boucle toutes les x ms
@@ -245,7 +265,7 @@ class AppliPendule(tk.Tk):
         """demarrer la simulation
         """
         print("Started simulation with parameters :",
-              "{thetadeb=", str(round(self.now_theta, 5)), 
+              "{thetadeb=", str(round(self.now_theta, 5)),
               "; alpha =", str(round(self.alpha_var.get(), 5)),
               "; f =", str(round(float(self.f_var.get()), 5)),
               "; a =", str(round(float(self.a_var.get()), 5)), "}"
@@ -253,25 +273,30 @@ class AppliPendule(tk.Tk):
         if not self.is_moving:
             self.btnStart['text'] = 'Relancer'
             self.btnStop['state'] = "normal"
-                
+
             self.canva_reset()
             self.now_theta = self.theta_scale.get()
-            
+
             self.simulation_being_played = theory.calc_pendule(
-                thetadeb=self.now_theta, 
-                alpha=self.alpha_var.get(), 
-                f=int(self.f_var.get()),
-                a=int(self.a_var.get()),
-                output=["t", "theta", "thetap", "f", "fmin", "N"]
+                thetadeb=self.now_theta,
+                alpha=self.alpha_var.get(),
+                f=float(self.f_var.get()),
+                a=float(self.a_var.get()),
+                l = float(self.l),
+                g = float(self.g),
+                tau = float(self.tau),
+                output=["t", "theta", "thetap", "f0", "fmin", "N"]
             )
             # self.dt = 0.05 par défaut
             self.theta = self.simulation_being_played["theta"][::int(self.simulation_being_played["N"]/self.N)]
             self.thetap = self.simulation_being_played["thetap"][::int(self.simulation_being_played["N"]/self.N)]
+
             
+            self.f0=self.simulation_being_played["f0"]
             
             self.color_trace = rd.choice(couleur) #choix d'une couleur dans la liste couleur de facon aleatoire
-            
-            
+
+
             self.n_playing = 1
             self.is_moving = True
             # on appele la fonction move une seule fois
@@ -284,15 +309,125 @@ class AppliPendule(tk.Tk):
     def stop(self):
         """mettre fin à la simulation
         """
-        print("Stopped simulation")
+
         if self.is_moving :
             self.btnStart['text'] = 'Démarrer'
             self.btnStop['state'] = "disabled"
             self.is_moving = False
-            
+
+
+    def open_change_pendulum_window(self):
+        self.change_pendulum_window = tk.Toplevel()
+        self.change_pendulum_window.title("Modifier les propriétés du pendule")
+               
+        
+        self.change_pendulum_window.l_var = tk.StringVar()
+        self.change_pendulum_window.l_var.set(str(round(self.l, 5)))
+        self.change_pendulum_window.g_var = tk.StringVar()
+        self.change_pendulum_window.g_var.set(str(round(self.g, 5)))
+        self.change_pendulum_window.tau_var = tk.StringVar()
+        self.change_pendulum_window.tau_var.set(str(round(self.tau, 5)))
+
+        # Créer et placer les labels et les champs de saisie
+        tk.Label(self.change_pendulum_window, text="Longueur (m):").grid(row=0, column=0, padx=10, pady=5, sticky="e")
+        l_entry = tk.Entry(self.change_pendulum_window, textvariable=self.change_pendulum_window.l_var)
+        l_entry.grid(row=0, column=1, padx=10, pady=5)
+
+        tk.Label(self.change_pendulum_window, text="Constante gravitationnelle (m/s²):").grid(row=1, column=0, padx=10, pady=5, sticky="e")
+        g_entry = tk.Entry(self.change_pendulum_window, textvariable=self.change_pendulum_window.g_var)
+        g_entry.grid(row=1, column=1, padx=10, pady=5)
+
+        tk.Label(self.change_pendulum_window, text="Force de frottement (s):").grid(row=2, column=0, padx=10, pady=5, sticky="e")
+        tau_entry = tk.Entry(self.change_pendulum_window, textvariable=self.change_pendulum_window.tau_var)
+        tau_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        update_fonc = self.update_f0
+        self.change_pendulum_window.l_var.trace("w", update_fonc)
+        self.change_pendulum_window.g_var.trace("w", update_fonc)
+        self.change_pendulum_window.tau_var.trace("w", update_fonc)
+
+
+        self.change_pendulum_window.f0_string_var = tk.StringVar()
+        self.change_pendulum_window.f0_string_var.set("Fréquence propre du pendule pour ces conditions f0="+str(round(self.f0, 5))+"Hz\n"
+                                                      + "Période propre du pendule pour ces conditions T0="+str(round(1/self.f0, 5))+"s" )
+        
+        tk.Label(self.change_pendulum_window,textvariable=self.change_pendulum_window.f0_string_var).grid(row=3, column=0, padx=10, pady=5, sticky="e")
+
+        # Lancer la boucle principale de la fenêtre
+        self.change_pendulum_window.mainloop()
+
+    def update_f0(self, *arg, **karg):
+        self.l = float(self.change_pendulum_window.l_var.get())
+        self.g = float(self.change_pendulum_window.g_var.get())
+        self.tau = float(self.change_pendulum_window.tau_var.get())
+        
+        self.simulation_being_played = theory.calc_pendule(
+                thetadeb=self.now_theta,
+                alpha=self.alpha_var.get(),
+                f=float(self.f_var.get()),
+                a=float(self.a_var.get()),
+                l = float(self.l),
+                g = float(self.g),
+                tau = float(self.tau),
+                output=["t", "theta", "thetap", "f0", "fmin", "N"]
+            )
+        
+        self.f0 = self.simulation_being_played["f0"]
+        
+        self.change_pendulum_window.f0_string_var.set("Fréquence propre du pendule pour ces conditions f0="+str(round(self.f0, 5))+"Hz\n"
+                                                      + "Période propre du pendule pour ces conditions T0="+str(round(1/self.f0, 5))+"s" )
+
+        
     def open_graphics(self):
-        t_and_theta = theory.calc_pendule(thetadeb=self.now_theta, output=["t", "theta"])
+        # on regénère le modèle
+        t_and_theta = theory.calc_pendule(
+            thetadeb=self.theta_scale.get(),
+            alpha=self.alpha_var.get(),
+            f=float(self.f_var.get()),
+            a=float(self.a_var.get()),
+            l = float(self.l_var.get()),
+            g = float(self.g_var.get()),
+            tau = float(self.tau_var.get()),
+            output=["t", "theta"]
+        )
+        # on l'affiche
         theory.plot_pendule_evolution(*tuple(t_and_theta.values()))
+        print("Generated graphic with parameters :",
+              "{thetadeb=", str(round(self.theta_scale.get(), 5)),
+              "; alpha =", str(round(self.alpha_var.get(), 5)),
+              "; f =", str(round(float(self.f_var.get()), 5)),
+              "; a =", str(round(float(self.a_var.get()), 5)), "}"
+             )
+
+    def open_simulation_graphics(self):
+        print(self.f0_string_var)
+        # on regénère le modèle
+        self.simulation_being_played = theory.calc_pendule(
+            thetadeb=self.now_theta,
+            alpha=self.alpha_var.get(),
+            f=float(self.f_var.get()),
+            a=float(self.a_var.get()),
+            output=["t", "theta", "thetap", "f0", "fmin", "N"]
+        )
+
+        t, theta, N = theory.calc_pendule(
+            thetadeb=self.theta_scale.get(),
+            alpha=self.alpha_var.get(),
+            f=float(self.f_var.get()),
+            a=float(self.a_var.get()),
+            l = float(self.l_var.get()),
+            g = float(self.g_var.get()),
+            tau = float(self.tau_var.get()),
+            output=["t", "theta", "N"]
+        ).values()
+        # on l'affiche
+        theory.plot_pendule_evolution(t[::int(N/self.N)], theta[::int(N/self.N)])
+        print("Generated graphic of really played by tkinter (less occurences) model with parameters :",
+              "{thetadeb=", str(round(self.theta_scale.get(), 5)),
+              "; alpha =", str(round(self.alpha_var.get(), 5)),
+              "; f =", str(round(float(self.f_var.get()), 5)),
+              "; a =", str(round(float(self.a_var.get()), 5)), "}"
+             )
 
 
 if __name__ == "__main__":
