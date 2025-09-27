@@ -1,9 +1,11 @@
 # Outils d'étude du comportement d'un pendule 
+Ce projet a pour but de fournir des outils théoriques sur le mouvement d'un pendule soumis à une excitation verticale ou horizontale. Il sera utilisé pour montrer les aspects théorique et obtenir facilement les résultats de nos calculs dans le cadre de notre participation aux Olympiades de Physique. Il a été réalisé par Félix, membre de l'équipe du lycée Edmond Perrier à Tulle concourant pour les Olympiades.
+
 ## Faire des calculs
 Le fichier "pendule_euler.py" permet de calculer certaines valeurs pour un pendule donné en utilisant la méthode d'Euler.
 
 ### Fonctions :
-### 1 - calc_pendule
+#### 1 - calc_pendule
 Calcule l'évolution de l'angle d'un pendule soumis ou non à un excitation verticale ou  horizontale. Calcule également la fréquence propre du pendule donné et le renvoie si demandé en output.
 exemple d'utilisation :
 ```python
@@ -17,7 +19,7 @@ exemple d'utilisation :
 - la fréquence minimale du pendule
 
 
-### 2 - calc_f0
+#### 2 - calc_f0
 Calcule seulement la fréquence propre f0 d'un pendule de longueur l soumis à une attraction terrestre g
 exemple d'utilisation :
 ```python
@@ -25,14 +27,12 @@ exemple d'utilisation :
 ```
 --> renvoie la fréquence propre d'un pendule de longueur 6cm pour l'attraction terrestre normale
     
-### 3 - plot_pendule_evolution
+#### 3 - plot_pendule_evolution
 Permet de tracer l'evolution de l'angle du pendule par rapport à la verticale descendante
 exemple d'utilisation :
 ```python
-
     t, theta = tuple(calc_pendule(l=5e-2, thetadeb=45, alpha=0, f=5, a=1e-2, g=9.81, tfin=10, output=["t", "theta"]).values())
     plot_pendule_evolution(t, theta)
-    
 ```
 --> trace le graphique mathplotlib de theta en fonction du temps pour les conditions énoncées précedement. Il est à noter que dans l'éditeur python Spider, le graphique s'affichera dans une rubrique dédiée alors que via tout autre moyen d'execution, le graphique apparaître dans une fenêtre séparée. A vous de voir l'affichage que vous préférez ! ;)
 
