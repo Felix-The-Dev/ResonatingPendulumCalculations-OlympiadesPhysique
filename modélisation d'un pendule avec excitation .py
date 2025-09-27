@@ -22,7 +22,8 @@ predefined_settings = [
         "text":"Excitation verticale, pendule en haut avec une excitation de grande fréquence :"+
             "\nLe pendule est maintenu vers le haut"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":170, "alpha":0, "f":51, "a":2e-2}
+        "parameters":{"thetadeb":115, "alpha":0, "f":51, "a":5e-3}
+        # Remarque : à partir de thetadeb = 115, le pendule 6cm se dresse. Sinon il retombe
     },
     { 
         "text":"Excitation horizontale à la fréquence propre du pendule :"+
