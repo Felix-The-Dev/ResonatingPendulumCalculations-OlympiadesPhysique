@@ -1,26 +1,63 @@
+"""
+Fenêtre tkinter qui permet de calculer f0 et T0 pour un l, g et tau donné et
+de visualiser et de tracer le graphique du mouvement d'un pendule avec n'importe 
+angle thetadeb initial, fréquence d'excitation et amplitude d'excitation.
+Des paramètre prédéfinis peuvent être sélectionnés pour mettre en évidence certains
+phénomènes :)
+"""
 import tkinter as tk
 import random as rd
 import numpy as np
 import pendule_euler as theory
 
+# Paramètres particuliers que l'utilisateur peut choisir. 
+# Il est possible d'insérer des calculs (format python) en utilisant f0 dans une string. 
+# Ex: "f" = "f0*2"
+# Il est possible de seulement mettre "actuel" comme valeur lorsque ce paramètre n'est pas important pour le cas présent
+# Ex: "a" = "actuel"
+# /!\ Ne pas supprimer la dernière ligne de texte et son "\n" Elle affichera les valeurs des paramètres
+# /!\ Ne pas utiliser de chaine en triple guillemets : ça génère des espaces disgracieux
+predefined_settings = [
+    {
+        "text":"Excitation verticale, pendule en haut avec une excitation de grande fréquence :"+
+            "\nLe pendule est maintenu vers le haut"+
+            "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
+        "parameters":{"thetadeb":170, "alpha":0, "f":51, "a":2e-2}
+    },
+    { 
+        "text":"Excitation horizontale à la fréquence propre du pendule :"+
+            "\nLe pendule ocille à une amplitude maximale indéfiniment"+
+            "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
+        "parameters":{"thetadeb":"actuel", "alpha":np.pi/2, "f":"f0", "a":2e-2}
+    }
+]
+
+
+
+# si on veut changer la couleur de la trainée laissée par le pendule : fun ^u^:
+# (pris aléatoirement dans la liste)
 couleur = ['black', 'white', 'red', 'orange', 'yellow', 'green',
           'turquoise', 'blue', 'purple', 'magenta']
 couleur = ["black"]
 
 
+
 # Classe principale qui herite de la classe Tk.
 class AppliPendule(tk.Tk):
-    """Classe principale de l'application (contient la fenetre Tk).
+    """
+        Classe principale de l'application (contient la fenetre Tk).
+        Pour ouvrir la fenêtre, créer une instance et appliquer la méthode .mainloop()
     """
 
-    def __init__(self, l=6e-2, thetadeb=70, alpha=0, f=0, a=0, g=9.81,
-                 tau=1, k=20, tfin=10):
+    def __init__(self, l=6e-2, thetadeb=45, alpha=0, f=0, a=0, g=9.81,
+                 tau=1, k=20, tfin=20):
 
         # Appel du constructeur de la classe génitrice.
         # L'instance de la fenetre principale se retrouve dans le self.donc
         # on pourra le self dans la suite
         tk.Tk.__init__(self)
-
+        self.title("Simulation d'un pendule avec excitation : le phénomène de résonnance")
+        
 
         # Etat du mouvement
         self.is_moving = False
@@ -63,7 +100,7 @@ class AppliPendule(tk.Tk):
 
 
 
-        self.change_pendulum_window = 0
+        self.change_pendulum_window = None # variable qui accueillera la fenêtre de modification des paramètres
 
 
         self.canva_reset()
@@ -71,8 +108,8 @@ class AppliPendule(tk.Tk):
 
 
         # Creation des boutons.
-        self.btnStart = tk.Button(self, text="Démarrer", command=self.start)
-        self.btnStop = tk.Button(self, text="Arreter", command=self.stop)
+        self.btnStart = tk.Button(self, text="Démarrer", command=self.start, bg="#CFE3CF")
+        self.btnStop = tk.Button(self, text="Arreter", command=self.stop, bg="#DECBC5")
 
 
         # Creationtion d'un Label pour voir les caracteristiques du pendule en temps réel.
@@ -82,6 +119,7 @@ class AppliPendule(tk.Tk):
                                  fg="blue", font=("Courier New", 12))
 
 
+        # Creation du bouton pour ouvrir la fenêtre des propriétés du pendule
         self.btnChangePendulum = tk.Button(self, text="Modifier les propriétés du pendule", command=self.open_change_pendulum_window)
 
 
@@ -90,13 +128,11 @@ class AppliPendule(tk.Tk):
         # Création du choix 'direction d'exitation'
         self.alexcit_frame = tk.Frame(self)
         self.alexcit_label = tk.Label(self, text = "Direction d'exitation α =" )
-        self.alpha_var = tk.IntVar()
+        self.alpha_var = tk.DoubleVar()
         self.alexcit_rad1 = tk.Radiobutton(self.alexcit_frame,text="verticale (0)",variable=self.alpha_var,value=0)
         self.alexcit_rad2 = tk.Radiobutton(self.alexcit_frame,text="horizontale (π/2)",variable=self.alpha_var,value=np.pi/2)
-        if (alpha==0):
-            self.alexcit_rad1.select()
-        elif (alpha>np.pi/2-0.5 and alpha<np.pi/2+0.5):
-            self.alexcit_rad2.select()
+        self.alpha_var.set(alpha)
+        
 
         # Création de l'entrée 'fréquence d'exitation (f)'
         self.fexcit_frame = tk.Frame(self)
@@ -114,16 +150,19 @@ class AppliPendule(tk.Tk):
 
         # Creation de la règlette
         self.theta_scale = tk.Scale(self, from_=180, to=-180,
-                                    resolution=0.5,
+                                    resolution=1,
                                     command=self.update_theta_scale)
         self.theta_scale.set(thetadeb)
         scale_description = tk.Label(self, text="valeur initiale de theta",
                                      fg="blue")
 
+        # Creation du bouton pour ouvrir la fenêtre des 
+        self.btnLoadParameters= tk.Button(self, text="Charger des cas préenregistrés", command=self.open_load_parameters_window)
+
 
         # Creation du bouton "ouvrir les graphiques" et de son bouton associé pour voir seulement ce que simule le pendule
         open_graphic_frame = tk.Frame(self)
-        open_graphic=tk.Button(open_graphic_frame, text="Générer le graphique", bg="#b3c2d0", command=self.open_graphics)
+        open_graphic=tk.Button(open_graphic_frame, text="Générer le graphique", bg="#b3c2d0", command=self.open_graphics, cursor="hand2")
         open_simulation_graphic=tk.Button(open_graphic_frame, text="#", bg="#b3c2d0", command=self.open_simulation_graphics)
 
 
@@ -132,7 +171,7 @@ class AppliPendule(tk.Tk):
         self.btnStart.pack()  # boutton quitter
         self.btnStop.pack()
         display_theta.pack()
-        self.btnChangePendulum.pack()
+        self.btnLoadParameters.pack()
         self.alexcit_label.pack()
         self.alexcit_rad1.pack( side = 'left' )
         self.alexcit_rad2.pack(side = 'right')
@@ -143,10 +182,12 @@ class AppliPendule(tk.Tk):
         self.aexcit_label.pack( side = 'left' )
         self.aexcit_entry.pack(side = 'right')
         self.aexcit_frame.pack()
+        self.btnChangePendulum.pack()
 
         open_graphic_frame.pack(side=tk.BOTTOM)
         open_graphic.pack(side=tk.LEFT)
         open_simulation_graphic.pack(side=tk.RIGHT)
+        
 
         # Puis la règle et sa description.
         scale_description.pack(side=tk.LEFT)
@@ -179,8 +220,8 @@ class AppliPendule(tk.Tk):
         self.tige = self.canv.create_line(200, 200, self.x_c,
                                           self.y_c, fill="blue")
         # Creation d'une ligne
-        self.canv.create_line(0, 200, 400, 200, dash=(3, 3))
-        self.canv.create_line(200, 0, 200, 400, dash=(3, 3))
+        self.canv.create_line(0, 200, 450, 200, dash=(3, 3))
+        self.canv.create_line(200, 0, 200, 450, dash=(3, 3))
 
 
 
@@ -259,16 +300,22 @@ class AppliPendule(tk.Tk):
 
             # On refait appel  à la  methode.move().
             if self.is_moving and self.n_playing < len(self.theta)-1:
-                self.after(int(self.dt*1000), self.move)  # boucle toutes les x ms
+                self.after(int(self.dt*1000), self.move)  # boucle toutes les x 
+            else:
+                self.stop()
 
     def start(self):
         """demarrer la simulation
         """
-        print("Started simulation with parameters :",
+        print("\nStarted simulation with parameters :\n",
               "{thetadeb=", str(round(self.now_theta, 5)),
               "; alpha =", str(round(self.alpha_var.get(), 5)),
               "; f =", str(round(float(self.f_var.get()), 5)),
-              "; a =", str(round(float(self.a_var.get()), 5)), "}"
+              "; a =", str(round(float(self.a_var.get()), 5)),
+              "; l =", str(round(float(self.l), 5)),
+              "; g =", str(round(float(self.g), 5)),
+              "; tau =", str(round(float(self.tau), 5)), 
+              "; tfin=", str(round(float(self.tfin), 5)),"}"
              )
         if not self.is_moving:
             self.btnStart['text'] = 'Relancer'
@@ -285,6 +332,7 @@ class AppliPendule(tk.Tk):
                 l = float(self.l),
                 g = float(self.g),
                 tau = float(self.tau),
+                tfin= self.tfin,
                 output=["t", "theta", "thetap", "f0", "fmin", "N"]
             )
             # self.dt = 0.05 par défaut
@@ -302,6 +350,7 @@ class AppliPendule(tk.Tk):
             # on appele la fonction move une seule fois
             if self.is_moving:
                 self.move()
+            
         else:
             self.stop()
             self.after(2*int(self.dt*1000), self.start)
@@ -317,6 +366,8 @@ class AppliPendule(tk.Tk):
 
 
     def open_change_pendulum_window(self):
+        self.btnChangePendulum['state'] = "disabled"
+        
         self.change_pendulum_window = tk.Toplevel()
         self.change_pendulum_window.title("Modifier les propriétés du pendule")
                
@@ -329,7 +380,7 @@ class AppliPendule(tk.Tk):
         self.change_pendulum_window.tau_var.set(str(round(self.tau, 5)))
 
         # Créer et placer les labels et les champs de saisie
-        tk.Label(self.change_pendulum_window, text="Longueur (m):").grid(row=0, column=0, padx=10, pady=5, sticky="e")
+        tk.Label(self.change_pendulum_window, text="Longueur du pendule (m):").grid(row=0, column=0, padx=10, pady=5, sticky="e")
         l_entry = tk.Entry(self.change_pendulum_window, textvariable=self.change_pendulum_window.l_var)
         l_entry.grid(row=0, column=1, padx=10, pady=5)
 
@@ -348,27 +399,49 @@ class AppliPendule(tk.Tk):
 
 
         self.change_pendulum_window.f0_string_var = tk.StringVar()
-        self.change_pendulum_window.f0_string_var.set("Fréquence propre du pendule pour ces conditions f0="+str(round(self.f0, 5))+"Hz\n"
-                                                      + "Période propre du pendule pour ces conditions T0="+str(round(1/self.f0, 5))+"s" )
+        self.change_pendulum_window.f0_string_var.set("Fréquence propre du pendule pour ces conditions f0= "+str(round(self.f0, 5))+"Hz\n"
+                                                      + "Période propre du pendule pour ces conditions T0= "+str(round(1/self.f0, 5))+"s" )
         
-        tk.Label(self.change_pendulum_window,textvariable=self.change_pendulum_window.f0_string_var).grid(row=3, column=0, padx=10, pady=5, sticky="e")
+        tk.Label(self.change_pendulum_window,textvariable=self.change_pendulum_window.f0_string_var).grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="e")
+
+        self.change_pendulum_window.protocol("WM_DELETE_WINDOW", self.close_change_pendulum_window)
 
         # Lancer la boucle principale de la fenêtre
         self.change_pendulum_window.mainloop()
+    
+    
+    def close_change_pendulum_window(self):
+        self.btnChangePendulum['state'] = "normal"
+        self.change_pendulum_window.destroy()
 
     def update_f0(self, *arg, **karg):
         self.l = float(self.change_pendulum_window.l_var.get())
         self.g = float(self.change_pendulum_window.g_var.get())
         self.tau = float(self.change_pendulum_window.tau_var.get())
         
+        l = self.l
+        g = self.g
+        tau = self.tau
+        # éviter les erreurs de division par 0
+        if l == 0:
+            l=0.01
+        if g == 0:
+            l=0.01
+        if tau == 0:
+            l=0.01
+            
+        # mise à jour de la longueur de la tige  (mesure de tkinter)
+        self.L = l*100/5  
+        
         self.simulation_being_played = theory.calc_pendule(
                 thetadeb=self.now_theta,
                 alpha=self.alpha_var.get(),
                 f=float(self.f_var.get()),
                 a=float(self.a_var.get()),
-                l = float(self.l),
+                l = float(l),
                 g = float(self.g),
                 tau = float(self.tau),
+                tfin= self.tfin,
                 output=["t", "theta", "thetap", "f0", "fmin", "N"]
             )
         
@@ -377,60 +450,216 @@ class AppliPendule(tk.Tk):
         self.change_pendulum_window.f0_string_var.set("Fréquence propre du pendule pour ces conditions f0="+str(round(self.f0, 5))+"Hz\n"
                                                       + "Période propre du pendule pour ces conditions T0="+str(round(1/self.f0, 5))+"s" )
 
+    def open_load_parameters_window(self):
+        self.stop()
+        self.btnLoadParameters['state'] = "disabled"
+        
+        self.load_parameters_window = tk.Toplevel()
+        self.load_parameters_window.title("Charger des paramètres préenregistrés")
+           
+        
+        # Création de tous les radio buttons pour sélectionner les pendule sur lequel on applique les paramètres préenregistrés
+        self.pendulum_size_var = tk.DoubleVar()
+        self.pendulum_size_var.set(self.l)
+        self.pendulum_size_choice_frame = tk.Frame(self.load_parameters_window)
+        tk.Label(self.load_parameters_window, text = "Pendule à utiliser :" ).pack()
+        tk.Radiobutton(self.pendulum_size_choice_frame,text="2cm",variable=self.pendulum_size_var, value=2e-2).pack(side=tk.LEFT)
+        tk.Radiobutton(self.pendulum_size_choice_frame,text="4cm",variable=self.pendulum_size_var, value=4e-2).pack(side=tk.LEFT)
+        tk.Radiobutton(self.pendulum_size_choice_frame,text="6cm",variable=self.pendulum_size_var, value=6e-2).pack(side=tk.LEFT)
+        tk.Radiobutton(self.pendulum_size_choice_frame,text="8cm",variable=self.pendulum_size_var, value=8e-2).pack(side=tk.LEFT)
+        tk.Radiobutton(self.pendulum_size_choice_frame,text="10cm",variable=self.pendulum_size_var, value=10e-2).pack(side=tk.LEFT)
+        self.pendulum_size_choice_frame.pack()
+         
+        
+        # On crée tous les boutons correspondants aux propositions de paramètres pré-enregistrés
+        self.settings_buttons = []
+        for setting in predefined_settings:
+            button = tk.Button(self.load_parameters_window, 
+                  text=setting["text"], 
+                  command=lambda parameters=setting["parameters"]: self.load_parameters(parameters)
+                  , bg="#DEDEDE", cursor="hand2")
+            self.settings_buttons.append(button)
+            button.pack(ipadx=5, ipady=20, padx=10, pady=10)
+    
+    
+        self.update_parameters_buttons()
+        update_fonc = self.update_parameters_buttons
+        self.pendulum_size_var.trace("w", update_fonc)
+        
+        
+        self.load_parameters_window.protocol("WM_DELETE_WINDOW", self.close_load_parameters_window)
+
+        # Lancer la boucle principale de la fenêtre
+        self.load_parameters_window.mainloop()
+
+    
+    def close_load_parameters_window(self):
+        self.btnLoadParameters['state'] = "normal"
+        self.load_parameters_window.destroy()
+        
+    def update_parameters_buttons(self, *args, **kargs):
+        """
+            Actualise chaque dernière ligne de boutons de paramètre prédéfini 
+            ui donne l'apperçu des paramètres qui vont être mis
+        """
+                 
+        
+        for k in range(len(self.settings_buttons)):
+            button = self.settings_buttons[k]
+            
+            parameters = predefined_settings[k]["parameters"]
+            evalued_parameters = self.eval_parameters(predefined_settings[k]["parameters"])
+            
+            button_text_splitted = button['text'].split("\n")
+            
+            parameters_indication = "("
+            
+            if parameters["thetadeb"] == "actuel" or isinstance(parameters["thetadeb"], str):
+                parameters_indication+= "thetadeb="+parameters["thetadeb"]+"="+str(round(evalued_parameters["thetadeb"], 5))+"   ;   "
+            else:
+                parameters_indication+= "thetadeb="+str(round(evalued_parameters["thetadeb"], 5))+"   ;   "
+            
+            if parameters["alpha"] == "actuel" or isinstance(parameters["alpha"], str):
+                parameters_indication+= " ="+parameters["alpha"]+"="+str(round(evalued_parameters["alpha"], 5))+"   ;   "
+            else:
+                parameters_indication+= "α="+str(round(evalued_parameters["alpha"], 5))+"   ;   "
+            
+            if parameters["f"] == "actuel" or isinstance(parameters["f"], str):
+                parameters_indication+= "f="+parameters["f"]+"="+str(round(evalued_parameters["f"], 5))+"   ;   "
+            else:
+                parameters_indication+= "f="+str(round(evalued_parameters["f"], 5))+"   ;   "
+                
+            if parameters["a"] == "actuel" or isinstance(parameters["a"], str):
+                parameters_indication+= "a="+parameters["a"]+"="+str(round(evalued_parameters["a"], 5))
+            else:
+                parameters_indication+= "a="+str(round(evalued_parameters["a"], 5))
+            
+            parameters_indication += ")"
+            
+            
+            
+            
+            button['text'] = "\n".join(button_text_splitted[:-1])+"\n"+parameters_indication
+        
+        
+        
+    def eval_parameters(self, parameters):
+        """
+            Permet d'évaluer des paramètres thetadeb, alpha, f et a 
+            lorsqu'il sont sous la forme d'un calcul dans une chaine de caractères
+            utilisant f0.
+        """
+            
+        # Si les valeurs valent "actuel", on considère qu'elles ne changent pas par rapport à avant.
+        if parameters["thetadeb"] == "actuel":
+            thetadeb = self.theta_scale.get()
+        else:
+            thetadeb = parameters["thetadeb"]
+            
+        if parameters["alpha"] == "actuel":
+            alpha = self.alpha_var.get()
+        else :
+            alpha = parameters["alpha"]
+            
+        if parameters["f"] == "actuel":
+            f = self.f_var.get()
+        else:
+            f = parameters["f"]
+            
+        if parameters["a"] == "actuel":
+            a = self.a_var.get()
+        else:
+            a = parameters["a"]
+            
+        
+        # si la valeur est de la forme d'une expression qui dépend de f0
+        f0 = theory.calc_f0(self.pendulum_size_var.get(), self.g)
+        
+        if isinstance(thetadeb, str):
+            thetadeb.replace('f0', str(f0))
+            thetadeb = eval(thetadeb)
+        if isinstance(alpha, str):
+            alpha.replace('f0', str(f0))
+            alpha = eval(alpha)
+        if isinstance(f, str):
+            f.replace('f0', str(f0))
+            f = eval(f)
+        if isinstance(a, str):
+            a.replace('f0', str(f0))
+            a = eval(a)
+            
+            
+        return {"thetadeb":thetadeb, "alpha":alpha, "f":f, "a":a}
+
+    def load_parameters(self, parameters):
+        evalued_parameters = self.eval_parameters(parameters)
+        
+        self.l = self.pendulum_size_var.get()
+        self.L = self.l*100/5 
+        self.theta_scale.set(evalued_parameters["thetadeb"])
+        self.alpha_var.set(evalued_parameters["alpha"])
+        self.f_var.set(evalued_parameters["f"])
+        self.a_var.set(evalued_parameters["a"])
+        
+        self.start()
+        
+        self.close_load_parameters_window()
         
     def open_graphics(self):
         # on regénère le modèle
-        t_and_theta = theory.calc_pendule(
+        t, theta = theory.calc_pendule(
             thetadeb=self.theta_scale.get(),
             alpha=self.alpha_var.get(),
             f=float(self.f_var.get()),
             a=float(self.a_var.get()),
-            l = float(self.l_var.get()),
-            g = float(self.g_var.get()),
-            tau = float(self.tau_var.get()),
+            l = float(self.l),
+            g = float(self.g),
+            tau = float(self.tau),
+            tfin= self.tfin,
             output=["t", "theta"]
-        )
+        ).values()
+        
         # on l'affiche
-        theory.plot_pendule_evolution(*tuple(t_and_theta.values()))
-        print("Generated graphic with parameters :",
+        theory.plot_pendule_evolution(t, theta)
+        print("\nGenerated graphic with parameters :\n",
               "{thetadeb=", str(round(self.theta_scale.get(), 5)),
               "; alpha =", str(round(self.alpha_var.get(), 5)),
               "; f =", str(round(float(self.f_var.get()), 5)),
-              "; a =", str(round(float(self.a_var.get()), 5)), "}"
+              "; a =", str(round(float(self.a_var.get()), 5)),
+              "; l =", str(round(float(self.l), 5)),
+              "; g =", str(round(float(self.g), 5)),
+              "; tau =", str(round(float(self.tau), 5)),
+              "; tfin=", str(round(float(self.tfin), 5)), "}"
              )
 
     def open_simulation_graphics(self):
-        print(self.f0_string_var)
-        # on regénère le modèle
-        self.simulation_being_played = theory.calc_pendule(
-            thetadeb=self.now_theta,
-            alpha=self.alpha_var.get(),
-            f=float(self.f_var.get()),
-            a=float(self.a_var.get()),
-            output=["t", "theta", "thetap", "f0", "fmin", "N"]
-        )
 
         t, theta, N = theory.calc_pendule(
             thetadeb=self.theta_scale.get(),
             alpha=self.alpha_var.get(),
             f=float(self.f_var.get()),
             a=float(self.a_var.get()),
-            l = float(self.l_var.get()),
-            g = float(self.g_var.get()),
-            tau = float(self.tau_var.get()),
+            l = float(self.l),
+            g = float(self.g),
+            tau = float(self.tau),
+            tfin= self.tfin,
             output=["t", "theta", "N"]
         ).values()
+        
         # on l'affiche
         theory.plot_pendule_evolution(t[::int(N/self.N)], theta[::int(N/self.N)])
-        print("Generated graphic of really played by tkinter (less occurences) model with parameters :",
+        print("\nGenerated graphic of really played by tkinter (less occurences) model with parameters :\n",
               "{thetadeb=", str(round(self.theta_scale.get(), 5)),
               "; alpha =", str(round(self.alpha_var.get(), 5)),
               "; f =", str(round(float(self.f_var.get()), 5)),
-              "; a =", str(round(float(self.a_var.get()), 5)), "}"
+              "; a =", str(round(float(self.a_var.get()), 5)),
+              "; l =", str(round(float(self.l), 5)),
+              "; g =", str(round(float(self.g), 5)),
+              "; tau =", str(round(float(self.tau), 5)),
+              "; tfin=", str(round(float(self.tfin), 5)), "}"
              )
 
 
 if __name__ == "__main__":
     simu_pendule = AppliPendule()
-    simu_pendule.title("Simulation d'un pendule avec excitation : le phénomène de résonnance")
     simu_pendule.mainloop()

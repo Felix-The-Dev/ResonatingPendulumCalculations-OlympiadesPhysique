@@ -1,12 +1,17 @@
 ﻿"""
+Fonctions :
+1 - calc_pendule
+Calcule l'évolution de l'angle d'un pendule soumis ou non à un excitation 
+verticale ou  horizontale. Calcule également la fréquence propre du pendule
+donné et le renvoie si demandé en output.
 
-Tester :
-
-    t_and_theta = calc_pendule(output=["t", "theta"])
-    plot_pendule_evolution(*tuple(t_and_theta.values()))
-
-Ne pas oublier l'opérateur d'unpacking du tuple : *
-
+2 - calc_f0
+Calcule seulement la fréquence propre f0 d'un pendule de longueur l soumis
+à une attraction terrestre g
+    
+3 - plot_pendule_evolution
+Permet de tracer l'evolution de l'angle du pendule par rapport à la
+verticale descendante
 """
 
 
@@ -16,7 +21,9 @@ import matplotlib.pyplot as plt
 def calc_pendule(l=5e-2, thetadeb=160, alpha=0, f=0, a=0, g=9.81, tau=1,
                  k=10000, tfin=10, output=["t", "theta"]):
     """
-    Calcule l'évolution de l'angle d'un pendule par rapport à '
+    Calcule l'évolution de l'angle d'un pendule soumis ou non à un excitation 
+    verticale ou  horizontale. Calcule également la fréquence propre du pendule
+    donné et le renvoie si demandé en output.
 
     @arg l : la longueur du pendule en m
     @arg thetadeb : angle initial du pendule par rapport à la verticale
@@ -105,6 +112,19 @@ def calc_pendule(l=5e-2, thetadeb=160, alpha=0, f=0, a=0, g=9.81, tau=1,
             raise ValueError(f"Unknown output name : {output}")
     return out
 
+def calc_f0(l, g):
+    """
+    Calcule seulement la fréquence propre f0 d'un pendule de longueur l soumis
+    à une attraction terrestre g
+    
+    @arg l : la longueur du pendule en m
+    @arg g : attraction terrestre en m/s^2
+    """
+    
+    f0=1/(2*np.pi)*(g/l)**0.5
+    return f0
+    
+
 
 def plot_pendule_evolution(t, theta):
     """
@@ -124,13 +144,9 @@ def plot_pendule_evolution(t, theta):
 
 
 if __name__ == '__main__':
-    
-    # f0 = calc_pendule(l=6e-2, thetadeb=70, alpha=0, f=0, a=0, g=9.81,
-    #              tau=1, k=20, tfin=10, output=["f0"])
-    # print(f0)
-    
-    t_and_theta = calc_pendule(output=["t", "theta"])
-    plot_pendule_evolution(*tuple(t_and_theta.values()))
+        
+    t, theta = tuple(calc_pendule(l=5e-2, thetadeb=45, alpha=0, f=5, a=1e-2, g=9.81, tfin=10, output=["t", "theta"]).values())
+    plot_pendule_evolution(t, theta)
 
 
 
