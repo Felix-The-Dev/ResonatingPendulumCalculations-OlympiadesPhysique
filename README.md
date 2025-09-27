@@ -1,6 +1,10 @@
 # Outils d'étude du comportement d'un pendule 
 Ce projet a pour but de fournir des outils théoriques sur le mouvement d'un pendule soumis à une excitation verticale ou horizontale. Il sera utilisé pour montrer les aspects théorique et obtenir facilement les résultats de nos calculs dans le cadre de notre participation aux Olympiades de Physique. Il a été réalisé par Félix, membre de l'équipe du lycée Edmond Perrier à Tulle concourant pour les Olympiades.
 
+## Comment exécuter ?
+![gif qui explique comme faire marcher l'outil](images/how-to-use-it.gif)
+
+
 ## Faire des calculs
 Le fichier "pendule_euler.py" permet de calculer certaines valeurs pour un pendule donné en utilisant la méthode d'Euler.
 
