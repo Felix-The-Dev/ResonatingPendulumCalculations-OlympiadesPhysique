@@ -17,9 +17,10 @@ verticale descendante
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 def calc_pendule(l=5e-2, thetadeb=160, alpha=0, f=0, a=0, g=9.81, tau=1,
-                 k=10000, tfin=10, output=["t", "theta"]):
+                 k=10000, tfin=20, output=["t", "theta"]):
     """
     Calcule l'évolution de l'angle d'un pendule soumis ou non à un excitation 
     verticale ou  horizontale. Calcule également la fréquence propre du pendule
@@ -139,12 +140,48 @@ def plot_pendule_evolution(t, theta):
     plt.show()
 
 
+def calc_excitation(f, a, tfin, N):
+    """
+        Crée un tableau numpy contenant la valeur de décalement à effectuer pour le
+        pivot pour qu'on ait visuellement l'impression que l'excitation a lieu
+        sur la simulation.
+        
+        f=5 est une fréquence maximum pourqu'on voit l'excitation sans rendre 
+        la simulation trop disgracieuse (avec une grande amplitude, c'est à vomir xD)
+        à partir de f=10, on ne voit même plus le changement de position
+        
+    """
+    
+    # décalage à appliquer en x ou en y suivant le cas
+    dec=np.zeros(N)
+    
+    if f==0 or a==0: #éviter les divisions par 0
+        return dec
+    else:
+            
+        tdeb = 0 
+        dt=(tfin-tdeb)/N     # temps entre chaque occurence de simulation
+        
+        T = 1/f              # période
+        
+        
+        b= (2*np.pi) / T     # coefficient de x dans la formule du sinus
+          
+        
+        for x in range(N): 
+            dec[x] = a*math.sin(b*(x*dt))
+        
+        return dec
+        
+        
+    
+
 
 
 
 
 if __name__ == '__main__':
-        
+    
     t, theta = tuple(calc_pendule(l=5e-2, thetadeb=45, alpha=0, f=5, a=1e-2, g=9.81, tfin=10, output=["t", "theta"]).values())
     plot_pendule_evolution(t, theta)
 
