@@ -134,27 +134,27 @@ class AppliPendule(tk.Tk):
 
 
 
-        # Création du choix 'direction d'exitation'
+        # Création du choix 'direction d'excitation'
         self.alexcit_frame = tk.Frame(self)
-        self.alexcit_label = tk.Label(self.alexcit_frame, text = "Direction d'exitation α =" )
+        self.alexcit_label = tk.Label(self.alexcit_frame, text = "Direction d'excitation α =" )
         self.alpha_var = tk.DoubleVar()
         self.alexcit_rad1 = tk.Radiobutton(self.alexcit_frame,text="verticale (0)",variable=self.alpha_var,value=0)
         self.alexcit_rad2 = tk.Radiobutton(self.alexcit_frame,text="horizontale (π/2)",variable=self.alpha_var,value=np.pi/2)
         self.alpha_var.set(alpha)
         
 
-        # Création de l'entrée 'fréquence d'exitation (f)'
+        # Création de l'entrée 'fréquence d'excitation (f)'
         self.fexcit_frame = tk.Frame(self)
         self.f_var = tk.StringVar()
-        self.fexcit_label = tk.Label(self.fexcit_frame, text = "Fréquence d'exitation f =" )
+        self.fexcit_label = tk.Label(self.fexcit_frame, text = "Fréquence d'excitation f =" )
         self.fexcit_entry = tk.Entry(self.fexcit_frame, textvariable=self.f_var, width=10)
         self.f_var.set(str(round(f, 5)))
         self.f_var.trace("w", self.update_ocillation_showing)
 
-        # Création de l'entrée 'amplitude d'exitation (a)'
+        # Création de l'entrée 'amplitude d'excitation (a)'
         self.aexcit_frame = tk.Frame(self)
         self.a_var = tk.StringVar()
-        self.aexcit_label = tk.Label(self.aexcit_frame, text = "Amplitude d'exitation a =" )
+        self.aexcit_label = tk.Label(self.aexcit_frame, text = "Amplitude d'excitation a =" )
         self.aexcit_entry = tk.Entry(self.aexcit_frame, textvariable=self.a_var, width=10)
         self.a_var.set(str(round(a, 5)))
         
@@ -175,7 +175,7 @@ class AppliPendule(tk.Tk):
                                     resolution=1,
                                     command=self.update_theta_scale)
         self.theta_scale.set(thetadeb)
-        scale_description = tk.Label(self, text="valeur initiale de theta",
+        scale_description = tk.Label(self, text="Valeur initiale de theta :",
                                      fg="blue")
         
         
