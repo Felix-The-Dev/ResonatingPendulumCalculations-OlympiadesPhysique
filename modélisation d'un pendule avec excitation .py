@@ -431,12 +431,12 @@ class AppliPendule(tk.Tk):
                 self.canv.itemconfigure(self.pivot, fill="#0000ff")
             if float(self.f_var.get()) <= 1:
                 self.canv.itemconfigure(self.pivot, fill="#01456c")
-            elif float(self.f_var.get()) <= 2:
-                self.canv.itemconfigure(self.pivot, fill="#706500")
+            elif float(self.f_var.get()) <= 3:
+                self.canv.itemconfigure(self.pivot, fill="#425E00")
             elif float(self.f_var.get()) <= 5:
-                self.canv.itemconfigure(self.pivot, fill="#7a6100")
+                self.canv.itemconfigure(self.pivot, fill="#645000")
             elif float(self.f_var.get()) <= 9.5:
-                self.canv.itemconfigure(self.pivot, fill="#734c00")
+                self.canv.itemconfigure(self.pivot, fill="#734100")
             else:
                 self.canv.itemconfigure(self.pivot, fill="#760000")
         else:
