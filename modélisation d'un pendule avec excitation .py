@@ -524,19 +524,8 @@ class AppliPendule(tk.Tk):
         # mise à jour de la longueur de la tige  (mesure de tkinter)
         self.L = l*100/5  
         
-        self.simulation_being_played = theory.calc_pendule(
-                thetadeb=self.theta_scale.get(),
-                alpha=self.alpha_var.get(),
-                f=float(self.f_var.get()),
-                a=float(self.a_var.get()),
-                l = float(l),
-                g = float(self.g),
-                tau = float(self.tau),
-                tfin= self.tfin,
-                output=["t", "theta", "thetap", "f0", "fmin", "N"]
-            )
         
-        self.f0 = self.simulation_being_played["f0"]
+        self.f0 = theory.calc_f0(l, g)
         
         self.change_pendulum_window.f0_string_var.set("Fréquence propre du pendule pour ces conditions f0="+str(round(self.f0, 5))+"Hz\n"
                                                       + "Période propre du pendule pour ces conditions T0="+str(round(1/self.f0, 5))+"s" )
