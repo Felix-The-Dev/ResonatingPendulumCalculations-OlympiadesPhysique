@@ -30,7 +30,7 @@ predefined_settings = [
         "text":"Excitation horizontale à la fréquence propre du pendule :"+
             "\nLe pendule ocille à une amplitude maximale indéfiniment"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":"actuel", "alpha":np.pi/2, "f":"f0", "a":2e-2}
+        "parameters":{"thetadeb":"actuel", "alpha":np.pi/2, "f":"2*f0", "a":2e-2}
     }
 ]
 
@@ -148,14 +148,32 @@ class AppliPendule(tk.Tk):
         self.f_var = tk.StringVar()
         self.fexcit_label = tk.Label(self.fexcit_frame, text = "Fréquence d'excitation f =" )
         self.fexcit_entry = tk.Entry(self.fexcit_frame, textvariable=self.f_var, width=10)
+        def f_scroll_gestion(event):
+            if event.delta > 0:
+                self.f_var.set(str(float(self.f_var.get())+0.25))
+            elif float(self.f_var.get())>0.25:
+                self.f_var.set(str(float(self.f_var.get())-0.25))
+            else:
+                self.f_var.set("0")
+        self.fexcit_entry.bind('<MouseWheel>', f_scroll_gestion)
         self.f_var.set(str(round(f, 5)))
         self.f_var.trace("w", self.update_ocillation_showing)
+
 
         # Création de l'entrée 'amplitude d'excitation (a)'
         self.aexcit_frame = tk.Frame(self)
         self.a_var = tk.StringVar()
         self.aexcit_label = tk.Label(self.aexcit_frame, text = "Amplitude d'excitation a =" )
         self.aexcit_entry = tk.Entry(self.aexcit_frame, textvariable=self.a_var, width=10)
+        def a_scroll_gestion(event):
+            if event.delta > 0:
+                self.a_var.set(str(round(float(self.a_var.get())+0.005, 4)))
+            elif float(self.a_var.get())>0.015:
+                self.a_var.set(str(round(float(self.a_var.get())-0.005, 4)))
+            else:
+                self.a_var.set("0")
+                
+        self.aexcit_entry.bind('<MouseWheel>', a_scroll_gestion)
         self.a_var.set(str(round(a, 5)))
         
         # Création de la checkbox "Afficher les ocillations"
@@ -174,6 +192,14 @@ class AppliPendule(tk.Tk):
         self.theta_scale = tk.Scale(self, from_=180, to=-180,
                                     resolution=1,
                                     command=self.update_theta_scale)
+        def thetadeb_scroll_gestion(event):
+            if event.delta > 0:
+                self.theta_scale.set(float(self.theta_scale.get())+1)
+            elif float(self.theta_scale.get())>1:
+                self.theta_scale.set(float(self.theta_scale.get())-1)
+            else:
+                self.theta_scale.set("0")
+        self.theta_scale.bind('<MouseWheel>', thetadeb_scroll_gestion)
         self.theta_scale.set(thetadeb)
         scale_description = tk.Label(self, text="Valeur initiale de theta :",
                                      fg="blue")
@@ -419,7 +445,7 @@ class AppliPendule(tk.Tk):
             elif self.alpha_var.get() == np.pi/2:  # si l'excitation est horizontale
                 self.ocil_dec_x = theory.calc_excitation(f, float(self.a_var.get()), self.tfin, self.N)
              
-                
+        
         # on initialise      
         self.now_ocil_dec_x = self.ocil_dec_x[0]
         self.now_ocil_dec_y = self.ocil_dec_y[0]
@@ -517,9 +543,9 @@ class AppliPendule(tk.Tk):
         if l == 0:
             l=0.01
         if g == 0:
-            l=0.01
+            g=0.01
         if tau == 0:
-            l=0.01
+            tau=0.01
             
         # mise à jour de la longueur de la tige  (mesure de tkinter)
         self.L = l*100/5  
