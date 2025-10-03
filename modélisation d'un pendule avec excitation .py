@@ -19,18 +19,24 @@ import pendule_euler as theory
 # /!\ Ne pas supprimer la dernière ligne de texte et son "\n" Elle affichera les valeurs des paramètres
 # /!\ Ne pas utiliser de chaine en triple guillemets : ça génère des espaces disgracieux
 predefined_settings = [
-    {
-        "text":"Excitation verticale, pendule en haut avec une excitation de grande fréquence :"+
-            "\nLe pendule est maintenu vers le haut"+
+    { 
+        "text":"Expérience de la 'Danse Hawaïenne' \nExcitation horizontale, pendule en bas avec une excitation à la fréquence propre:"+
+            "\nLe pendule ocille de droite à gauche à une amplitude maximale indéfiniment"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":115, "alpha":0, "f":51, "a":5e-3}
+        "parameters":{"thetadeb":2, "alpha":np.pi/2, "f":"f0", "a":1e-2}
+    },
+    {
+        "text":"Expérience de la 'Queue de cheval' \nExcitation verticale, pendule en bas avec une excitation de deux fois la fréquence propre:"+
+            "\nLe pendule ocille de droite à gauche à une amplitude maximale indéfiniment"+
+            "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
+        "parameters":{"thetadeb":2, "alpha":0, "f":"2*f0", "a":1e-2}
         # Remarque : à partir de thetadeb = 115, le pendule 6cm se dresse. Sinon il retombe
     },
     { 
-        "text":"Excitation horizontale à la fréquence propre du pendule :"+
-            "\nLe pendule ocille à une amplitude maximale indéfiniment"+
+        "text":"Expérience du 'Charmeur de pendule' \nExcitation verticale, pendule en haut avec une frequence d'excitation élevée dite fmin :"+
+            "\nLe pendule reste dressé en l'air"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":"actuel", "alpha":np.pi/2, "f":"2*f0", "a":2e-2}
+        "parameters":{"thetadeb":115, "alpha":0, "f":50, "a":5e-3}
     }
 ]
 
@@ -52,7 +58,7 @@ class AppliPendule(tk.Tk):
     """
 
     def __init__(self, l=6e-2, thetadeb=45, alpha=np.pi/2, f=0, a=0, g=9.81,
-                 tau=1, k=20, tfin=20):
+                 tau=1, k=20, tfin=30):
 
         # Appel du constructeur de la classe génitrice.
         # L'instance de la fenetre principale se retrouve dans le self.donc
@@ -505,7 +511,7 @@ class AppliPendule(tk.Tk):
         g_entry = tk.Entry(self.change_pendulum_window, textvariable=self.change_pendulum_window.g_var)
         g_entry.grid(row=1, column=1, padx=10, pady=5)
 
-        tk.Label(self.change_pendulum_window, text="Force de frottement (s):").grid(row=2, column=0, padx=10, pady=5, sticky="e")
+        tk.Label(self.change_pendulum_window, text="Temps d'amortissement (s):").grid(row=2, column=0, padx=10, pady=5, sticky="e")
         tau_entry = tk.Entry(self.change_pendulum_window, textvariable=self.change_pendulum_window.tau_var)
         tau_entry.grid(row=2, column=1, padx=10, pady=5)
 
