@@ -144,8 +144,8 @@ class AppliPendule(tk.Tk):
         self.alexcit_frame = tk.Frame(self)
         self.alexcit_label = tk.Label(self.alexcit_frame, text = "Direction d'excitation α =" )
         self.alpha_var = tk.DoubleVar()
-        self.alexcit_rad1 = tk.Radiobutton(self.alexcit_frame,text="verticale (0)",variable=self.alpha_var,value=np.pi/2)
-        self.alexcit_rad2 = tk.Radiobutton(self.alexcit_frame,text="horizontale (π/2)",variable=self.alpha_var,value=0)
+        self.alexcit_rad1 = tk.Radiobutton(self.alexcit_frame,text="verticale (π/2)",variable=self.alpha_var,value=np.pi/2)
+        self.alexcit_rad2 = tk.Radiobutton(self.alexcit_frame,text="horizontale (0)",variable=self.alpha_var,value=0)
         self.alpha_var.set(alpha)
         
 
