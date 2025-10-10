@@ -23,20 +23,20 @@ predefined_settings = [
         "text":"Expérience de la 'Danse Hawaïenne' \nExcitation horizontale, pendule en bas avec une excitation à la fréquence propre:"+
             "\nLe pendule ocille de droite à gauche à une amplitude maximale indéfiniment"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":2, "alpha":np.pi/2, "f":"f0", "a":1e-2}
+        "parameters":{"thetadeb":2, "alpha":0, "f":"f0", "a":1e-2}
     },
     {
         "text":"Expérience de la 'Queue de cheval' \nExcitation verticale, pendule en bas avec une excitation de deux fois la fréquence propre:"+
             "\nLe pendule ocille de droite à gauche à une amplitude maximale indéfiniment"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":2, "alpha":0, "f":"2*f0", "a":1e-2}
+        "parameters":{"thetadeb":2, "alpha":np.pi/2, "f":"2*f0", "a":1e-2}
         # Remarque : à partir de thetadeb = 115, le pendule 6cm se dresse. Sinon il retombe
     },
     { 
         "text":"Expérience du 'Charmeur de pendule' \nExcitation verticale, pendule en haut avec une frequence d'excitation élevée dite fmin :"+
             "\nLe pendule reste dressé en l'air"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":115, "alpha":0, "f":50, "a":5e-3}
+        "parameters":{"thetadeb":115, "alpha":np.pi/2, "f":50, "a":5e-3}
     }
 ]
 
@@ -57,7 +57,7 @@ class AppliPendule(tk.Tk):
         Pour ouvrir la fenêtre, créer une instance et appliquer la méthode .mainloop()
     """
 
-    def __init__(self, l=6e-2, thetadeb=45, alpha=np.pi/2, f=0, a=0, g=9.81,
+    def __init__(self, l=6e-2, thetadeb=45, alpha=0, f=0, a=0, g=9.81,
                  tau=1, k=20, tfin=30):
 
         # Appel du constructeur de la classe génitrice.
@@ -144,8 +144,8 @@ class AppliPendule(tk.Tk):
         self.alexcit_frame = tk.Frame(self)
         self.alexcit_label = tk.Label(self.alexcit_frame, text = "Direction d'excitation α =" )
         self.alpha_var = tk.DoubleVar()
-        self.alexcit_rad1 = tk.Radiobutton(self.alexcit_frame,text="verticale (0)",variable=self.alpha_var,value=0)
-        self.alexcit_rad2 = tk.Radiobutton(self.alexcit_frame,text="horizontale (π/2)",variable=self.alpha_var,value=np.pi/2)
+        self.alexcit_rad1 = tk.Radiobutton(self.alexcit_frame,text="verticale (0)",variable=self.alpha_var,value=np.pi/2)
+        self.alexcit_rad2 = tk.Radiobutton(self.alexcit_frame,text="horizontale (π/2)",variable=self.alpha_var,value=0)
         self.alpha_var.set(alpha)
         
 
@@ -445,10 +445,10 @@ class AppliPendule(tk.Tk):
             else:
                 f=float(self.f_var.get())
                 
-            if self.alpha_var.get() == 0: # si l'excitation est verticale
+            if self.alpha_var.get() == np.pi/2: # si l'excitation est verticale
                self.ocil_dec_y = theory.calc_excitation(f, float(self.a_var.get()), self.tfin, self.N)
  
-            elif self.alpha_var.get() == np.pi/2:  # si l'excitation est horizontale
+            elif self.alpha_var.get() == 0:  # si l'excitation est horizontale
                 self.ocil_dec_x = theory.calc_excitation(f, float(self.a_var.get()), self.tfin, self.N)
              
         

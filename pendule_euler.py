@@ -31,8 +31,8 @@ def calc_pendule(l=5e-2, thetadeb=160, alpha=0, f=0, a=0, g=9.81, tau=1,
                     descendante en degrès (angle de lâché)
 
 
-    @arg alpha : angle que fait la direction d'excitation avec la verticale
-                (en radiants: 0 pour vertical, np.pi/2 pour l'horizontale)
+    @arg alpha : angle que fait la direction d'excitation avec l'horizontale
+                (en radiants: np.pi/2 pour vertical, 0 pour l'horizontale)
     @arg f : (51) fréquence de l'excitateur en Hz
     @arg a : (2e-3) amplitude des excitation en m
 
@@ -93,7 +93,7 @@ def calc_pendule(l=5e-2, thetadeb=160, alpha=0, f=0, a=0, g=9.81, tau=1,
     for i in range(0,N-1):
         t[i+1]=t[i]+dt
         theta[i+1]=theta[i]+dt*thetap[i]
-        thetap[i+1]=thetap[i]+dt*(-np.sin(theta[i])*g/l+np.sin(theta[i]+alpha)*a*omega**2*np.cos(omega*t[i])/l-thetap[i]/tau)
+        thetap[i+1]=thetap[i]+dt*(-np.sin(theta[i])*g/l+np.cos(theta[i]+alpha)*a*omega**2*np.cos(omega*t[i])/l-thetap[i]/tau)
 
 
     # --- Renvoi de l'output désiré ----
