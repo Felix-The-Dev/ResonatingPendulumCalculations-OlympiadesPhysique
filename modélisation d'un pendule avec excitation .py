@@ -29,14 +29,14 @@ predefined_settings = [
         "text":"Expérience de la 'Queue de cheval' \nExcitation verticale, pendule en bas avec une excitation de deux fois la fréquence propre:"+
             "\nLe pendule ocille de droite à gauche à une amplitude maximale indéfiniment"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":2, "alpha":np.pi/2, "f":"2*f0", "a":1e-2}
-        # Remarque : à partir de thetadeb = 115, le pendule 6cm se dresse. Sinon il retombe
+        "parameters":{"thetadeb":2, "alpha":"π/2", "f":"2*f0", "a":1e-2}
     },
     { 
-        "text":"Expérience du 'Charmeur de pendule' \nExcitation verticale, pendule en haut avec une frequence d'excitation élevée dite fmin :"+
+        "text":"Expérience du 'Charmeur de pendule' \nExcitation verticale, pendule en haut à la fréquence d'excitaiton de Kapiza (dite fmin) :"+
             "\nLe pendule reste dressé en l'air"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":115, "alpha":np.pi/2, "f":50, "a":5e-3}
+        "parameters":{"thetadeb":160, "alpha":"π/2", "f":"2*fmin", "a":"actuel"}
+        # Je n'ai pas bien compris comment est calculé le fmin sans utiliser thetadeb ?
     }
 ]
 
@@ -612,7 +612,7 @@ class AppliPendule(tk.Tk):
     def update_parameters_buttons(self, *args, **kargs):
         """
             Actualise chaque dernière ligne de boutons de paramètre prédéfini 
-            ui donne l'apperçu des paramètres qui vont être mis
+            puis donne l'aperçu des paramètres qui vont être mis
         """
                  
         
@@ -631,10 +631,10 @@ class AppliPendule(tk.Tk):
             else:
                 parameters_indication+= "thetadeb="+str(round(evalued_parameters["thetadeb"], 5))+"   ;   "
             
-            if parameters["alpha"] == "actuel" or isinstance(parameters["alpha"], str):
-                parameters_indication+= " ="+parameters["alpha"]+"="+str(round(evalued_parameters["alpha"], 5))+"   ;   "
+            if parameters["alpha"] == "actuel":
+                parameters_indication+= "α=actuel="+str(round(evalued_parameters["alpha"], 5))+"   ;   "
             else:
-                parameters_indication+= "α="+str(round(evalued_parameters["alpha"], 5))+"   ;   "
+                parameters_indication+= "α="+str(parameters["alpha"])+"   ;   "
             
             if parameters["f"] == "actuel" or isinstance(parameters["f"], str):
                 parameters_indication+= "f="+parameters["f"]+"="+str(round(evalued_parameters["f"], 5))+"   ;   "
@@ -659,7 +659,7 @@ class AppliPendule(tk.Tk):
         """
             Permet d'évaluer des paramètres thetadeb, alpha, f et a 
             lorsqu'il sont sous la forme d'un calcul dans une chaine de caractères
-            utilisant f0.
+            utilisant f0, fmin ou "actual".
         """
             
         # Si les valeurs valent "actuel", on considère qu'elles ne changent pas par rapport à avant.
@@ -686,18 +686,25 @@ class AppliPendule(tk.Tk):
         
         # si la valeur est de la forme d'une expression qui dépend de f0
         f0 = theory.calc_f0(self.pendulum_size_var.get(), self.g)
+        fmin = 0
+        if "fmin" in f:
+            if eval(a) == 0:
+                a = "1e-2"
+            fmin = theory.calc_fmin(self.pendulum_size_var.get(), self.g, eval(a))
         
         if isinstance(thetadeb, str):
             thetadeb.replace('f0', str(f0))
+            thetadeb.replace('fmin', str(fmin))
             thetadeb = eval(thetadeb)
-        if isinstance(alpha, str):
-            alpha.replace('f0', str(f0))
-            alpha = eval(alpha)
+        if alpha == "π/2":
+            alpha = np.pi/2
         if isinstance(f, str):
             f.replace('f0', str(f0))
+            f.replace('fmin', str(fmin))
             f = eval(f)
         if isinstance(a, str):
             a.replace('f0', str(f0))
+            a.replace('fmin', str(fmin))
             a = eval(a)
             
             

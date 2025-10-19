@@ -124,6 +124,21 @@ def calc_f0(l, g):
     
     f0=1/(2*np.pi)*(g/l)**0.5
     return f0
+
+
+def calc_fmin(l, g, a):
+    """
+    Calcule seulement la fréquence minimale de Kapiza fmin d'un pendule de longueur l soumis
+    à une attraction terrestre g et excité avec une amplitude a
+    
+    @arg l : la longueur du pendule en m
+    @arg g : attraction terrestre en m/s^2
+    """
+    if a == 0:
+        return None
+    else:
+        fmin=(2*g*l)**0.5/(2*np.pi*a)
+        return fmin
     
 
 
