@@ -20,23 +20,39 @@ import pendule_euler as theory
 # /!\ Ne pas utiliser de chaine en triple guillemets : ça génère des espaces disgracieux
 predefined_settings = [
     { 
-        "text":"Expérience de la 'Danse Hawaïenne' \nExcitation horizontale, pendule en bas avec une excitation à la fréquence propre:"+
+        "text":"Expérience de la 'Danse Hawaïenne' \nExcitation horizontale, pendule en bas avec une excitation à sa fréquence propre:"+
             "\nLe pendule ocille de droite à gauche à une amplitude maximale indéfiniment"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":2, "alpha":0, "f":"f0", "a":1e-2}
+        "parameters":{"thetadeb":2, "alpha":0, "f":"f0", "a":1e-2},
+        "color":"#BFE0CB"
     },
     {
-        "text":"Expérience de la 'Queue de cheval' \nExcitation verticale, pendule en bas avec une excitation de deux fois la fréquence propre:"+
+        "text":"préExpérience de la 'Queue de cheval' à f0 \nExcitation verticale, pendule en bas avec une excitation à sa fréquence propre:"+
             "\nLe pendule ocille de droite à gauche à une amplitude maximale indéfiniment"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":2, "alpha":"π/2", "f":"2*f0", "a":1e-2}
+        "parameters":{"thetadeb":2, "alpha":"π/2", "f":"f0", "a":1e-2},
+        "color":"#DEDEDE"
+    },
+    {
+        "text":"préExpérience de la 'Queue de cheval' à 2f0 sans angle init \nExcitation verticale, pendule en bas avec une excitation de deux fois sa fréquence propre, sans angle initial:"+
+            "\nLe pendule ocille de droite à gauche à une amplitude maximale indéfiniment"+
+            "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
+        "parameters":{"thetadeb":0, "alpha":"π/2", "f":"2*f0", "a":1e-2},
+        "color":"#DEDEDE"
+    },
+    {
+        "text":"Expérience de la 'Queue de cheval' \nExcitation verticale, pendule en bas avec une excitation de deux fois sa fréquence propre:"+
+            "\nLe pendule ocille de droite à gauche à une amplitude maximale indéfiniment"+
+            "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
+        "parameters":{"thetadeb":2, "alpha":"π/2", "f":"2*f0", "a":1e-2},
+        "color":"#C5D6E3"
     },
     { 
         "text":"Expérience du 'Charmeur de pendule' \nExcitation verticale, pendule en haut à la fréquence d'excitaiton de Kapiza (dite fmin) :"+
             "\nLe pendule reste dressé en l'air"+
             "\n(thetadeb=xx, α=xx, f=xx, a=xx)",
-        "parameters":{"thetadeb":160, "alpha":"π/2", "f":"2*fmin", "a":"actuel"}
-        # Je n'ai pas bien compris comment est calculé le fmin sans utiliser thetadeb ?
+        "parameters":{"thetadeb":160, "alpha":"π/2", "f":"fmin+1", "a":"actuel"},
+        "color":"#E3CFCF"
     }
 ]
 
@@ -589,7 +605,7 @@ class AppliPendule(tk.Tk):
             button = tk.Button(self.load_parameters_window, 
                   text=setting["text"], 
                   command=lambda parameters=setting["parameters"]: self.load_parameters(parameters)
-                  , bg="#DEDEDE", cursor="hand2")
+                  , bg=setting["color"], cursor="hand2")
             self.settings_buttons.append(button)
             button.pack(ipadx=5, ipady=20, padx=10, pady=10)
     
