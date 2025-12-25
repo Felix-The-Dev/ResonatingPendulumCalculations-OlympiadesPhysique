@@ -496,7 +496,7 @@ class AppliPendule(tk.Tk):
         """
         try:
             if float(self.f_var.get())>=5:
-                self.show_ocillation_checkbox.config(text="Afficher des ocillations (déconseillé \nlorsque f et a trop grands)")
+                self.show_ocillation_checkbox.config(text="Afficher les ocillations (déconseillé \nlorsque f et a trop grands)")
             else:
                 self.show_ocillation_checkbox.config(text="Afficher les ocillations")
         except ValueError:
