@@ -27,40 +27,47 @@ def pendule(f,a,l,alpha,theta0,thetap0=0,tau=4,tdeb=0,tfin=10,N=10000):
     
     return  t,theta
 
-#hawaïenne
+
+# ===========================HAWAÏENNE=========================================
 alpha=0
 l=4e-2
 ftab=np.linspace(0.5,6,100)
-a=5e-3
-theta0=0.01
+a=1e-3
+theta0=0.0
 thetamtab=[]
 for f in ftab:
     t,theta=pendule(f,a,l,alpha,theta0)
     thetam=np.max(theta)
     thetamtab.append(thetam)
-    
-# #Permet de tracer l'evolution de l'angle du pendule par rapport à la verticale descendante
-# plt.figure()
-# plt.xlabel('f(Hz)')
-# plt.ylabel(r'$\theta_{max}(rad)$')
-# plt.grid()
-# plt.plot(ftab,thetamtab)
+    print(f,thetam)
+#Permet de tracer l'evolution de l'angle du pendule par rapport à la verticale descendante
+plt.figure()
+plt.xlabel('f(Hz)')
+plt.ylabel(r'$\theta_{max}(rad)$')
+plt.grid()
+plt.plot(ftab,thetamtab)
 
-# plt.savefig('thetamax_hawaienne_f.png')
-# plt.show()
+plt.savefig('thetamax_hawaienne_f.svg')
+plt.show()
+# =============================================================================
 
-#queue de cheval
+
+
+
+# ===========================QUEUE DE CHEVAL===================================
 alpha=np.pi/2
 l=4e-2
 ftab=np.linspace(0.5,6,100)
-a=5e-3
-theta0=0.029
+a=1e-3
+theta0=0.1
 thetamtab=[]
+
 for f in ftab:
     t,theta=pendule(f,a,l,alpha,theta0)
     thetam=np.max(theta)
+    print(f,thetam)
     thetamtab.append(thetam)
-    
+   
 
 plt.figure()
 plt.xlabel('f(Hz)')
@@ -68,38 +75,37 @@ plt.ylabel(r'$\theta_{max}(rad)$')
 plt.grid()
 plt.plot(ftab,thetamtab)
 
-plt.savefig('thetamax_queue_cheval_f.png')
+plt.savefig('thetamax_queue_cheval_f.svg')
 plt.show()
-print("done")
+# =============================================================================
 
 
 
 
 
-
-
-# #kapiza
-# alpha=np.pi/2
-# l=4e-2
-# ftab=np.linspace(20,100,100)
-# a=5e-3
-# theta0=170/180*np.pi
-# thetamtab=[]
-# for f in ftab:
-#     t,theta=pendule(f,a,l,alpha,theta0)
-#     thetam=np.mean(theta)
-#     thetamtab.append(thetam)
+# ========================KAPITZA==============================================
+alpha=np.pi/2
+l=4e-2
+ftab=np.linspace(20,40,100)
+a=5e-3
+theta0=170/180*np.pi
+thetamtab=[]
+for f in ftab:
+    t,theta=pendule(f,a,l,alpha,theta0)
+    thetam=np.mean(theta)
+    print(f,thetam)
+    thetamtab.append(thetam)
     
-# #Permet de tracer l'evolution de l'angle du pendule par rapport à la verticale descendante
-# plt.figure()
-# plt.xlabel('f(Hz)')
-# plt.ylabel(r'$\theta_{moy}(rad)$')
-# plt.grid()
-# plt.plot(ftab,thetamtab)
-# plt.savefig('thetamoy_kapitza_f.png')
+#Permet de tracer l'evolution de l'angle du pendule par rapport à la verticale descendante
+plt.figure()
+plt.xlabel('f(Hz)')
+plt.ylabel(r'$\theta_{moy}(rad)$')
+plt.grid()
+plt.plot(ftab,thetamtab)
+plt.savefig('thetamoy_kapitza_f.svg')
 
-# plt.show()
-
+plt.show()
+# =============================================================================
 
 
 

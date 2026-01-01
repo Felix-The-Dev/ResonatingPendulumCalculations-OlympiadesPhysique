@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib_inline.backend_inline import set_matplotlib_formats
+set_matplotlib_formats('svg')
+
+l=np.array([2e-2,4e-2,6e-2,8e-2,10e-2])#longueurs des pendules en m
+invsrqtl=1/np.sqrt(l)
+f=np.array([3.297,2.476,2.010,1.629,1.484]) # f en Hz
+ul=2e-3#incertitude sur l en m
+uf=0.003#incertitude sur f en Hz
+
+
+plt.figure()
+
+#on trace la droite linéaire formée par les points
+
+# =============================================================================
+#        # ajustement linéaire
+#        a, b = np.polyfit(invsrqtl, f, 1)
+# Coefficients données par Regressi
+a, b = 0.473, 0
+# =============================================================================
+
+droite = a * invsrqtl + b           # calcul des valeurs ajustées
+
+plt.plot(invsrqtl, f, 'o', label='Données')           # points expérimentaux
+plt.plot(invsrqtl, droite, '-', label='Ajustement linéaire')  # droite ajustée
+
+print(r"L'équation de la courbe est $f_0$ =", round(a, 5), "1/sqrt(l)")
+plt.text(3.30, 3.55, r"L'équation de la courbe est : $f_0$ = " + str(round(a, 5)) + r" $\frac{1}{\sqrt{l}}$")
+
+#On nomme l'plte des abscisses'
+plt.xlabel(r'$\frac{1}{\sqrt{l}}$ en m') #le r permet d'interpréter le texte comme du latex
+#On nomme l'plte des abscisses'
+plt.ylabel(r'$f_0$ en Hz')
+
+# plt.xlim(0,0.12)# on fixe les limites de abscisses du graphique
+# plt.ylim(0,40)# on fixe les limites de ordonnées du graphique
+
+
+plt.legend() #permet d'afficher les legendes
+plt.grid() #permet d'afficher une grille
+plt.savefig('invsqrtl.svg') #permet de sauvegarder la courbes
+plt.show()
+
+
