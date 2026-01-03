@@ -96,12 +96,13 @@ for f in ftab:
     print(f,thetam)
     thetamtab.append(thetam)
     
-#Permet de tracer l'evolution de l'angle du pendule par rapport à la verticale descendante
+# Permet de tracer l'evolution de l'angle du pendule par rapport à la verticale descendante
 plt.figure()
 plt.xlabel('f(Hz)')
 plt.ylabel(r'$\theta_{moy}(rad)$')
 plt.grid()
-plt.plot(ftab,thetamtab)
+#on trace les points avec des barres d'erreurs
+plt.errorbar(ftab,thetamtab,xerr=ua,yerr=ufmin,fmt='.',label='Valeurs mesurées') 
 plt.savefig('thetamoy_kapitza_f.svg')
 
 plt.show()
