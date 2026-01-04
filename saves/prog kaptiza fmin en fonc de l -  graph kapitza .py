@@ -27,7 +27,7 @@ fmin_modele=(2*g*l)**0.5/(2*np.pi*a)
 
 plt.figure()
 #on trace les point à l'aide de x
-plt.plot(l,fmin_modele,'x',label='Modèle Kapitza') 
+# plt.plot(l,fmin_modele,'x',label='Modèle Kapitza') 
 #on trace les points avec des barres d'erreurs
 plt.errorbar(l,fmin,xerr=ul,yerr=ufmin,fmt='.',label='Valeurs mesurées') 
 #On nomme l'axe des abscisses'

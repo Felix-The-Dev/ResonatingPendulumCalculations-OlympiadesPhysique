@@ -80,7 +80,7 @@ class AppliPendule(tk.Tk):
         # L'instance de la fenetre principale se retrouve dans le self.donc
         # on pourra le self dans la suite
         tk.Tk.__init__(self)
-        self.title("Simulation d'un pendule avec excitation : le phénomène de résonnance")
+        self.title("Simulation d'un pendule avec excitation : le phénomène de résonance")
         
 
         # Etat du mouvement
