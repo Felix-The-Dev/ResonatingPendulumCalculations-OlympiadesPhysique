@@ -148,8 +148,9 @@ def plot_pendule_evolution(t, theta):
     verticale descendante
     """
     plt.figure()
-    plt.xlabel('t(s)')
-    plt.ylabel(r'$\theta(rad)$')
+    plt.title('Tracé de l\'angle du pendule en fonction du temps')
+    plt.xlabel('t (s)')
+    plt.ylabel(r'$\theta (rad)$')
     plt.grid()
     plt.plot(t,theta)
     plt.show()
